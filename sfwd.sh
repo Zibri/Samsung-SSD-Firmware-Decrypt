@@ -13,12 +13,13 @@ if ! [ -f $1 ]; then
     echo "File does not exist."
     exit 1
 fi
+rm &>/dev/null -rf tmp magic key DSRD
 echo "Decompressing iso..."
-7z &>/dev/null x -otmp $1
+7z &>/dev/null x -y -otmp $1
 echo "Decompressing initrd..."
-7z &>/dev/null x -otmp/ tmp/initrd
+7z &>/dev/null x -y -otmp/ tmp/initrd
 echo "Extracting fumagician..."
-7z &>/dev/null x -otmp/ tmp/initrd~ root/fumagician
+7z &>/dev/null x -y -otmp/ tmp/initrd~ root/fumagician
 echo "Dumping Key..."
 strings tmp/root/fumagician/fumagician|grep -A 2 printk|tail -1|base64 -d >key
 echo "Decrypting..."
