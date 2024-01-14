@@ -3,6 +3,13 @@
 # Samsung SSD Firmware decompressor
 # By Zibri / RamJam in 2024
 #
+# This version uses openssl.
+#
+
+if ! which &>/dev/null openssl
+ 	then
+ 	  echo "Please install openssl."
+fi
 
 if ! which &>/dev/null 7z
  	then
@@ -32,11 +39,12 @@ echo "Decompressing initrd..."
 echo "Extracting fumagician..."
 7z &>/dev/null x -y -otmp/ tmp/initrd~ root/fumagician
 echo "Dumping Key..."
-strings tmp/root/fumagician/fumagician|grep -A 2 printk|tail -1|base64 -d >key
+key="$(strings tmp/root/fumagician/fumagician|grep -A 2 printk|tail -1|base64 -d|xxd -p -c 100)"
+echo "KEY: $key"
 echo "Decrypting..."
 for a in tmp/root/fumagician/*.enc
 do
-./sdec key $a $(basename ${a:0:-4}) magic
+openssl enc -aes-256-ecb -d -in $a -out $(basename ${a:0:-4}) -nopad -K $key
 done
 rm -rf tmp
 echo "Done."
