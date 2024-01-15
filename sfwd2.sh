@@ -45,10 +45,8 @@ echo "Decrypting..."
 for a in tmp/root/fumagician/*.enc
 do
   fn="$(basename ${a:0:-4})"
-  openssl enc -aes-256-ecb -d -in "$a" -out "$fn" -nopad -K $key
-  dd if="$fn" bs=32 skip=1 of="${fn}.bin" status=none
-  dd if="$fn" bs=32 count=1 of="${fn}.magic" status=none
-  rm "$fn"
+  dd if="$fn" bs=32 skip=1 if="$a" status=none | openssl enc -aes-256-ecb -d -out "${fn}.bin" -nopad -K $key
+  dd if="$fn" bs=32 count=1 if="$a" status=none | openssl enc -aes-256-ecb -d -out "${fn}.magic" -nopad -K $key
 done
 rm -rf tmp
 echo "Done."
